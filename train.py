@@ -45,16 +45,16 @@ if __name__ == '__main__':
     df=df[df['sentiment']!='neutral']
     df['sentiment_score']=df['sentiment_score'].replace({1:0,2:1})
     df=df.dropna()
-    df = df.sample(300)
+    #df = df.sample(300)
     train_content, val_content,train_sentiments,val_sentiments= train_test_split(df['content'],df['sentiment_score'],test_size=0.2,random_state=RANDOM_SEED, stratify=df['sentiment'])
     train_inputs, train_masks=preprocessing_for_bert(train_content)
     val_inputs, val_masks = preprocessing_for_bert(val_content)
     train_dataloader, val_dataloader = create_data_loaders(train_sentiments, val_sentiments, train_masks,val_masks,train_inputs, val_inputs , 32)
     set_seed(42)    # Set seed for reproducibility
-    bert_classifier, optimizer, scheduler = initialize_model(train_dataloader, epochs=1)
-    train(bert_classifier, optimizer, scheduler, train_dataloader, val_dataloader, epochs=1, evaluation=True)
-    #torch.save(bert_classifier.state_dict(), '1.pt')
-    path = 'current_weights.pt'
+    bert_classifier, optimizer, scheduler = initialize_model(train_dataloader, epochs=5)
+    train(bert_classifier, optimizer, scheduler, train_dataloader, val_dataloader, epochs=5, evaluation=True)
+    torch.save(bert_classifier.state_dict(), 'model_weights.pt')
+    path = 'model_weights.pt'
     bert_classifier.load_state_dict(torch.load(path))
     evaluate(bert_classifier, val_dataloader)
     preds=bert_predict(bert_classifier, val_dataloader)

@@ -14,6 +14,7 @@ from collections import defaultdict
 from textwrap import wrap
 from torch import nn, optim
 from torch.utils.data import Dataset, DataLoader
+import neptune.new as neptune
 import nltk
 nltk.download('stopwords')
 nltk.download('wordnet')
@@ -38,6 +39,24 @@ torch.manual_seed(RANDOM_SEED)
 pd.set_option('display.max_columns', None)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+
+run = neptune.init(
+    project="joamps/Health-fitness-app-sentiment-bert",
+    api_token="eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vYXBwLm5lcHR1bmUuYWkiLCJhcGlfdXJsIjoiaHR0cHM6Ly9hcHAubmVwdHVuZS5haSIsImFwaV9rZXkiOiI2NzlkNjdiYy01MGM0LTRiZGMtOThmYi0wODk3ODg5ODliOGQifQ==",
+    source_files = ['*.py']
+)
+
+parameters = {
+    "lr": 1e-2,
+    "bs": 32,
+    "H": 64,
+    "n_classes": 2,
+    "model_filename": "bertclassifier",
+    "device": torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
+}
+
+
+run["config/hyperparameters"] = parameters
 
 # Create the BertClassfier class
 class BertClassifier(nn.Module):
@@ -100,12 +119,16 @@ def initialize_model(train_dataloader,epochs=4):
 
     # Tell PyTorch to run the model on GPU
     bert_classifier.to(device)
+    run["config/model"] = type(bert_classifier).__name__
+    
+    
 
     # Create the optimizer
     optimizer = AdamW(bert_classifier.parameters(),
                       lr=5e-5,    # Default learning rate
                       eps=1e-8    # Default epsilon value
                       )
+    run["config/optimizer"] = type(optimizer).__name__                  
 
     # Total number of training steps
     total_steps = len(train_dataloader) * epochs
@@ -122,6 +145,7 @@ import time
 
 # Specify loss function
 loss_fn = nn.CrossEntropyLoss()
+run["config/criterion"] = type(loss_fn).__name__
 
 def set_seed(seed_value=42):
     """Set seed for reproducibility.
@@ -170,6 +194,8 @@ def train(model, optimizer, scheduler ,train_dataloader, val_dataloader=None, ep
             batch_loss += loss.item()
             total_loss += loss.item()
 
+            
+
             # Perform a backward pass to calculate gradients
             loss.backward()
 
@@ -194,6 +220,7 @@ def train(model, optimizer, scheduler ,train_dataloader, val_dataloader=None, ep
 
         # Calculate the average loss over the entire training data
         avg_train_loss = total_loss / len(train_dataloader)
+        run["training/loss"].log(avg_train_loss)
 
         print("-"*70)
         # =======================================
@@ -238,6 +265,7 @@ def evaluate(model, val_dataloader):
         # Compute loss
         loss = loss_fn(logits, b_labels)
         val_loss.append(loss.item())
+        
 
         # Get the predictions
         preds = torch.argmax(logits, dim=1).flatten()
@@ -245,10 +273,14 @@ def evaluate(model, val_dataloader):
         # Calculate the accuracy rate
         accuracy = (preds == b_labels).cpu().numpy().mean() * 100
         val_accuracy.append(accuracy)
+        
+        
 
     # Compute the average accuracy and loss over the validation set.
     val_loss = np.mean(val_loss)
+    run["validation/loss"].log(val_loss)
     val_accuracy = np.mean(val_accuracy)
+    run["validation/val_accuracy"].log(val_accuracy)
 
     return val_loss, val_accuracy
 
