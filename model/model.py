@@ -42,7 +42,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 run = neptune.init(
     project="joamps/Health-fitness-app-sentiment-bert",
-    api_token="eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vYXBwLm5lcHR1bmUuYWkiLCJhcGlfdXJsIjoiaHR0cHM6Ly9hcHAubmVwdHVuZS5haSIsImFwaV9rZXkiOiI2NzlkNjdiYy01MGM0LTRiZGMtOThmYi0wODk3ODg5ODliOGQifQ==",
+    api_token="put your own api token in",
     source_files = ['*.py']
 )
 
