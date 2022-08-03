@@ -1,54 +1,68 @@
-from flask import Flask, jsonify, request
-#from preprocessing.functions import tokenize
-import xgboost as xgb
-import joblib
-from healthcheck import HealthCheck
-import os
-import logging
-from model.model import BertClassifier, initialize_model
-from model.prepare_data  import text_preprocessing, preprocessing_for_bert, create_data_loaders
-
+import warnings
+warnings.filterwarnings("ignore")
+from transformers import BertTokenizer
 import torch
-#import onnxruntime as onx
-#app = Flask(__name__)
-
-#target={0:'Negative', 1:'Positive'}
-
-#model = joblib.load('models/model.onxx')
-#print('done')
-class ColaPredictor:
-    def __init__(self, model_path):
-        self.model_path = model_path
-        bert_classifier = BertClassifier(freeze_bert=True)
-        bert_classifier.load_state_dict(torch.load(model_path,map_location='cpu'))
-        self.model=bert_classifier.eval()
-        #self.model=bert_classifier.freeze()
-        #bert_classifier.load_state_dict(torch.load(path))
-        #self.model=torch.load(model_path)
-        #self.model.eval()
-        #
-        self.processor = create_data_loaders()
-        self.softmax = torch.nn.Softmax(dim=1)
-        self.labels = ["Negative", "Positive"]
-
-    def predict(self, text):
-        inference_sample = {"sentence": text}
-        processed = self.processor.tokenize_data(inference_sample)
-        logits = self.model(
-            torch.tensor([processed["input_ids"]]),
-            torch.tensor([processed["attention_mask"]]),
-        )
-        scores = self.softmax(logits[0]).tolist()[0]
-        predictions = []
-        for score, label in zip(scores, self.labels):
-            predictions.append({"label": label, "score": score})
-        return predictions
+from healthcheck import HealthCheck
+from model.model import BertClassifier
+from flask import Flask, jsonify, request
+import os
 
 
-if __name__ == "__main__":
-    sentence = "This is a very lovely app, excellent by all standards"
-    predictor = ColaPredictor("./model/model_weights.pt")
-    print(predictor.predict(sentence))
-    #sentences = ["The boy is sitting on a bench"] 
-    #for sentence in sentences:
-    predictor.predict(sentence)
+app = Flask(__name__)
+health = HealthCheck(app, "/hcheck")
+
+
+
+def howami():
+    return True, "I am alive. Thanks for checking.."
+
+health.add_check(howami)
+
+
+
+def configure_model(path):
+    bert_classifier = BertClassifier(freeze_bert=True)
+    bert_classifier.load_state_dict(torch.load(path))
+    return bert_classifier
+
+
+
+def configure_data(review_text):
+    tokenizer = BertTokenizer.from_pretrained('bert-base-cased', do_lower_case=True)
+    encoded_review = tokenizer.encode_plus(
+    review_text,
+    max_length=256,
+    add_special_tokens=True,
+    return_token_type_ids=False,
+    pad_to_max_length=True,
+    return_attention_mask=True,
+    return_tensors='pt',
+    )
+    bert_classifier=configure_model("model\model_weights.pt")
+
+    input_ids = encoded_review['input_ids']
+    attention_mask = encoded_review['attention_mask']
+    output = bert_classifier(input_ids, attention_mask)
+    _, prediction = torch.max(output, dim=1)
+    #
+    return prediction
+
+
+@app.route("/predict")
+def predict():
+    review_text = request.args.get("text")
+    class_names=['negative','positive']
+    prediction = configure_data(review_text)
+    response = {}
+    response["response"] = {
+        'REVIEW':review_text,'SENTIMENT':class_names[prediction]}
+    
+    return jsonify(response)    
+
+@app.route('/')
+def hello():
+    return 'Welcome to Health and fitness Sentiment App '
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', debug=True)
+    
