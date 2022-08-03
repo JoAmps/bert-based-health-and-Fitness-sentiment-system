@@ -69,6 +69,7 @@ def text_preprocessing(text):
 
 tokenizer = BertTokenizer.from_pretrained('bert-base-cased', do_lower_case=True)
 
+
 def preprocessing_for_bert(data):
     """Perform required preprocessing steps for pretrained BERT.
     @param    data (np.array): Array of texts to be processed.
