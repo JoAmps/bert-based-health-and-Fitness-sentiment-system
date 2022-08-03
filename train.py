@@ -34,8 +34,8 @@ torch.manual_seed(RANDOM_SEED)
 pd.set_option('display.max_columns', None)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 from model.prepare_data  import load_data, score_to_sentiment, text_preprocessing, preprocessing_for_bert, create_data_loaders, evaluate_roc
-from model.model import BertClassifier, initialize_model, set_seed, train, evaluate, bert_predict
-import onnxruntime as ort
+from model.model import BertClassifier, initialize_model, set_seed, train, evaluate, bert_predict, scoring_metrics
+#import onnxruntime as ort
 
 
 
@@ -52,14 +52,21 @@ if __name__ == '__main__':
     val_inputs, val_masks = preprocessing_for_bert(val_content)
     train_dataloader, val_dataloader = create_data_loaders(train_sentiments, val_sentiments, train_masks,val_masks,train_inputs, val_inputs , 32)
     set_seed(42)    # Set seed for reproducibility
-    bert_classifier, optimizer, scheduler = initialize_model(train_dataloader, epochs=5)
-    #train(bert_classifier, optimizer, scheduler, train_dataloader, val_dataloader, epochs=5, evaluation=True)
-    #torch.save(bert_classifier.state_dict(), 'model_weights.pt')
+    
+    bert_classifier, optimizer, scheduler = initialize_model(train_dataloader, epochs=8)
+    train(bert_classifier, optimizer, scheduler, train_dataloader, val_dataloader, epochs=8, evaluation=True)
+    torch.save(bert_classifier.state_dict(), 'model_weights.pt')
     path = 'model_weights.pt'
     bert_classifier.load_state_dict(torch.load(path))
     evaluate(bert_classifier, val_dataloader)
     preds=bert_predict(bert_classifier, val_dataloader)
     evaluate_roc(preds, val_sentiments)
+    threshold = 0.4
+    preds = np.where(preds[:, 1] > threshold, 1, 0)
+    scoring_metrics(preds,val_sentiments)
+
+ 
+
     input_batch = next(iter(train_dataloader))
     input_sample = {
         "input_ids": input_batch[0][0].unsqueeze(0),
@@ -77,9 +84,6 @@ if __name__ == '__main__':
     #"attention_mask": np.expand_dims(input_sample["attention_mask"], axis=0),
     #    }
     #ort_output = ort_session.run(None, ort_inputs)    
-
-
-
     #set_seed(42)    # Set seed for reproducibility
     #bert_classifier, optimizer, scheduler = initialize_model(epochs=15)
     #train(bert_classifier, train_dataloader, val_dataloader, epochs=15, evaluation=True)

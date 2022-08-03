@@ -37,12 +37,13 @@ np.random.seed(RANDOM_SEED)
 from transformers import AdamW, get_linear_schedule_with_warmup
 torch.manual_seed(RANDOM_SEED)
 pd.set_option('display.max_columns', None)
+from sklearn.metrics import f1_score, recall_score, precision_score, confusion_matrix, accuracy_score
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 run = neptune.init(
     project="joamps/Health-fitness-app-sentiment-bert",
-    api_token="put your own api token in",
+    api_token="eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vYXBwLm5lcHR1bmUuYWkiLCJhcGlfdXJsIjoiaHR0cHM6Ly9hcHAubmVwdHVuZS5haSIsImFwaV9rZXkiOiI2NzlkNjdiYy01MGM0LTRiZGMtOThmYi0wODk3ODg5ODliOGQifQ==",
     source_files = ['*.py']
 )
 
@@ -131,12 +132,13 @@ def initialize_model(train_dataloader,epochs=4):
     run["config/optimizer"] = type(optimizer).__name__                  
 
     # Total number of training steps
+    
     total_steps = len(train_dataloader) * epochs
-
-    # Set up the learning rate scheduler
+           # Set up the learning rate scheduler
     scheduler = get_linear_schedule_with_warmup(optimizer,
                                                 num_warmup_steps=0, # Default value
-                                                num_training_steps=total_steps)
+                                                num_training_steps=total_steps)    
+ 
     return bert_classifier, optimizer, scheduler
 
 
@@ -314,3 +316,14 @@ def bert_predict(model, test_dataloader):
     return probs
 
     
+def scoring_metrics(predictions, actuals):
+    acc=accuracy_score(predictions, actuals)
+    f1=f1_score(predictions, actuals)
+    recall=f1_score(predictions, actuals)
+    precision=precision_score(predictions, actuals)
+    sns.heatmap(confusion_matrix(predictions, actuals),annot=True, annot_kws={"fontsize":20}, fmt='d', cbar=False,cmap='icefire')
+    plt.title('Confusion Matrix', color='navy', fontsize=15)
+    plt.xlabel('Predicted Values')
+    plt.ylabel('Actual Values')
+    plt.show()
+    return {'Accuracy score':acc, 'f1 score':f1, 'recall score':recall, 'precision score':precision}
