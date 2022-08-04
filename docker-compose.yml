@@ -1,0 +1,7 @@
+version: '3'
+services:
+  prediction_api:
+    build: .
+    container_name: 'preds_container'
+    ports:
+      - '5000:5000'

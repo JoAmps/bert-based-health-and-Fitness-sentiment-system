@@ -4,7 +4,7 @@ from transformers import BertTokenizer
 import torch
 from healthcheck import HealthCheck
 from model.model import BertClassifier
-from model.prepare_data import preprocessing_for_bert
+from model.prepare_data import tokenize
 from flask import Flask, jsonify, request
 import os
 
@@ -19,10 +19,10 @@ def howami():
 
 health.add_check(howami)
 
-
-
+#device = torch.device('cpu') if torch.cuda.is_available() else torch.device('cuda')
+device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 def configure_model(path):
-    device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+    #device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     bert_classifier = BertClassifier(freeze_bert=True)
     bert_classifier.load_state_dict(torch.load(path, map_location=device))
     print(device)
@@ -45,26 +45,38 @@ def configure_model(path):
 # Or you can move the loaded model into the specific device
 #model.to(device)
 
-def configure_data(review_text):
-    tokenizer = BertTokenizer.from_pretrained('bert-base-cased', do_lower_case=True)
-    encoded_review = tokenizer.encode_plus(
-    review_text,
-    max_length=256,
-    add_special_tokens=True,
-    return_token_type_ids=False,
-    pad_to_max_length=True,
-    return_attention_mask=True,
-    return_tensors='pt',
-    )
-    bert_classifier=configure_model("model_weights.pt")
+#def configure_data(review_text):
+ #   tokenizer = BertTokenizer.from_pretrained('bert-base-cased', do_lower_case=True)
+  #  encoded_review = tokenizer.encode_plus(
+  #  review_text,
+  #  max_length=256,
+  #  add_special_tokens=True,
+   # return_token_type_ids=False,
+   # pad_to_max_length=True,
+   # return_attention_mask=True,
+   # return_tensors='pt',
+   # )
+   # bert_classifier=configure_model("model_weights.pt")
 
-    input_ids = encoded_review['input_ids']
-    attention_mask = encoded_review['attention_mask']
+   # input_ids = encoded_review['input_ids']
+   # attention_mask = encoded_review['attention_mask']
+   # output = bert_classifier(input_ids, attention_mask)
+   # _, prediction = torch.max(output, dim=1)
+    
+   # return prediction
+
+
+def configure_data(review_text):
+    encoded_review=tokenize(review_text)
+    bert_classifier=configure_model("model_weights.pt")
+    input_ids = encoded_review['input_ids'].to(device)
+    attention_mask = encoded_review['attention_mask'].to(device)
     output = bert_classifier(input_ids, attention_mask)
     _, prediction = torch.max(output, dim=1)
-    
+    #class_names=['negative','positive']
     return prediction
-
+    #return {'REVIEW':review_text,'SENTIMENT':class_names[prediction]}
+#configure_data('I highly recommend this app to everyone trying to lose weight, excellent app')
 
 @app.route("/predict")
 def predict():

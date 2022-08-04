@@ -66,8 +66,18 @@ def text_preprocessing(text):
     return text
 
 
+def tokenize(text):
+    tokenizer = BertTokenizer.from_pretrained('bert-base-cased', do_lower_case=True).encode_plus(
+    text,
+    max_length=256,
+    add_special_tokens=True,
+    return_token_type_ids=False,
+    pad_to_max_length=True,
+    return_attention_mask=True,
+    return_tensors='pt',
+    )
+    return tokenizer
 
-tokenizer = BertTokenizer.from_pretrained('bert-base-cased', do_lower_case=True)
 
 
 def preprocessing_for_bert(data):
