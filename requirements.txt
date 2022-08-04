@@ -10,3 +10,4 @@ requests == 2.28.0
 tqdm == 4.64.0
 healthcheck
 neptune-client==0.16.4
+flake8
