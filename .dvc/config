@@ -1,4 +1,6 @@
 [core]
-    remote = storage
+    remote = models
 ['remote "storage"']
     url = gdrive://1nwaOYbipXpoIJTsfQSYxvw9TOfiwBimS
+['remote "models"']
+    url = s3://healthandfitnesssentiment/trained_model/

@@ -1,0 +1,5 @@
+wdir: ..
+outs:
+- md5: a41256adeebf9e7980e7bf24372016dc
+  size: 433524201
+  path: model_weights.pt

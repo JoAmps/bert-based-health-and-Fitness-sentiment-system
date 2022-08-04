@@ -1,5 +1,0 @@
-wdir: ../model
-outs:
-- md5: 6fb9a39362fb30a7e1ead52c9fd2680a
-  size: 433524201
-  path: model_weights.pt
