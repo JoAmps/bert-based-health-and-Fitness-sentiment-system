@@ -7,6 +7,8 @@ Bert Based Sentiment Model for health and fitness App
 ## Project Intro/Objective
 Every Individual has their views and opinions on the apps they use, such views and opinions ultimately decide if they would like or dislike the app and if they would continue to use the app. For a company to be able to identify if the sentiments of the individuals regarding their products are positive or negative is crucial, so they know if the app is solving what it's intended to solve and if the customers love using the app. If most sentiments are negative, then the company knows there's something wrong, and immediate action is taken to resolve it, even if the sentiments are mostly positive, which gives a good feeling to the creators of the health apps, it encourgaes them to keep improving on the app to better serve the customers, so a way to identify if the reviews left by users are positive or negative is therefore crucial to the survival of these health and fitness apps
 
+The figure below shows the fitness apps used in this project,
+![Apps](https://github.com/JoAmps/bert-based-health-and-Fitness-sentiment-system/blob/main/images/apps.png)
 
 ### Methods Used
 * Data exploration/descriptive statistics
