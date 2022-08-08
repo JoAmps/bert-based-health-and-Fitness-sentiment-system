@@ -71,17 +71,36 @@ From the homepage,
 ## Results
 ### Model Metrics
 As mentioned previously, the model used was the bert model architecture, which was finetuned on the health and fitness dataset, which contained over 20000 reviews, with almost an equal distribution of negative and positive sentiments. The data was split into 80% for training and 20% for validation. Some preprocessing was performed, primarily using the bert tokenizer API from hugging face. The model was then trained and evaluated using the metrics, the key metric used during training was the accuracy score. Since the data was balanced, the accuracy score was a good metric to choose. The figure below shows the loss and accuracy curve of the training and validation sets.
+![Loss and accuracy graphs](https://github.com/JoAmps/bert-based-health-and-Fitness-sentiment-system/blob/main/images/loss_accuracy%20graphs.png)
+
 
 The model was evaluated on the roc curve, which maps the true positive rate against the false positive rate, and it achieved an 80% AUC score. The roc curve can be seen in the figure below.
 
+![ROC curve](https://github.com/JoAmps/bert-based-health-and-Fitness-sentiment-system/blob/main/images/roc_curve.png)
+
 The model was also evaluated using the confusion matrix which gives more information on the performance of the model, in total there were 1047 reviews in the validation set, with 250 of them incorrectly predicted(almost 24%) by the model, 125 each of false positive and false negative. Both negative predictions and positive predictions are equally important, so there is no need to change the thresholds to try to reduce false negatives or false positives. The figure below shows the confusion matrix,
 
+![Confusion matrix](https://github.com/JoAmps/bert-based-health-and-Fitness-sentiment-system/blob/main/images/confusion%20matrix.png)
+
 The system metrics recorded during training and logged using Neptune can be seen below. Neptune was used to track all the experiments and all the metrics so they can be reproduced
+
+![System metrics](https://github.com/JoAmps/bert-based-health-and-Fitness-sentiment-system/blob/main/images/sys%20metrics.png)
 
 
 ### Deployment 
 After getting a good enough model, the model needed to be deployed but first needed to create an API so it can be accessed by users when finally deployed and served to them. Flask was used as the API and the application was put in a container using docker. Before then, since the bert model is very big, and pushing it around to Github and the likes, I needed to version control the model, store it in a remote repository somewhere so I can access it anytime I want, so I put it in AWS s3 via data version control(DVC). The dockerized application was pushed to the cloud(AWS) via the elastic container registry, and then deployed using the elastic container service and exposed for users to use.
 A sample of the API exposed using the AWS ECR using the postman service, for both positive and negative sentiments can be seen in the figures below,
+
+Positive sentiment
+
+
+
+![positive sentiment](https://github.com/JoAmps/bert-based-health-and-Fitness-sentiment-system/blob/main/images/positve%20sentiment%20.png)
+
+Negative sentiment
+
+
+![Negative sentiment](https://github.com/JoAmps/bert-based-health-and-Fitness-sentiment-system/blob/main/images/negative%20sentiment.png)
 
  The logs from the cloud watch service is then 
 
