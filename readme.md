@@ -75,7 +75,7 @@ From the homepage,
 
 ## Results
 ### Model Metrics
-As mentioned previously, the model used was the bert model architecture, which was finetuned on the health and fitness dataset, which contained over 20000 reviews, with almost an equal distribution of negative and positive sentiments. The data was split into 80% for training and 20% for validation. Some preprocessing was performed, primarily using the bert tokenizer API from hugging face. The model was then trained and evaluated using the metrics, the key metric used during training was the accuracy score. Since the data was balanced, the accuracy score was a good metric to choose. The figure below shows the loss and accuracy curve of the training and validation sets.
+As mentioned previously, the model used was the bert model architecture, which was finetuned using Pytorch on the health and fitness dataset, which contained over 20000 reviews, with almost an equal distribution of negative and positive sentiments. The data was split into 80% for training and 20% for validation. Some preprocessing was performed, primarily using the bert tokenizer API from hugging face. The model was then trained and evaluated using the metrics, the key metric used during training was the accuracy score. Since the data was balanced, the accuracy score was a good metric to choose. The figure below shows the loss and accuracy curve of the training and validation sets.
 ![Loss and accuracy graphs](https://github.com/JoAmps/bert-based-health-and-Fitness-sentiment-system/blob/main/images/loss_accuracy%20graphs.png)
 
 
