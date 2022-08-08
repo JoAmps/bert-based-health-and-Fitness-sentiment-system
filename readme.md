@@ -43,6 +43,7 @@ The figure below shows the fitness apps used in this project,
 * Unit Testing(pytest)
 * Github actions for CI/CD
 * AWS S3 for storing files on the cloud
+* AWS EC2 for launching virtual servers
 * AWS Elastic container registry for hosting docker images on the cloud
 * AWS Elastic container service for deploying model
 * Kibana for monitoring the deep learning model predictions on the cloud
