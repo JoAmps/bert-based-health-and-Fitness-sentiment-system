@@ -29,7 +29,7 @@ RUN dvc remote add -d model-store s3://healthandfitnesssentiment/trained_model/
 
 RUN cat .dvc/config
 
-#RUN dvc pull dvc_files/trained_model.dvc
+RUN dvc pull dvc_files/trained_model.dvc
 
 EXPOSE 5000
 
