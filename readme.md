@@ -73,6 +73,16 @@ From the homepage,
 8. Final BERT.ipynb contains the exploratory data analysis used
 9. train.py contains code that strings the code from other python scripts together to do the actual training, evaluation and saving of the model and metrics
 
+## Analysis
+The reviews had an almost equal distribution of positive and negative sentiments, with about 51% being positive and the rest being negative, which shows users on average have a positive feeling towards the fitness apps used in this project, but generally its quite close. The figure below shows the distribution.
+
+
+![dis of positve and negative](https://github.com/JoAmps/bert-based-health-and-Fitness-sentiment-system/blob/main/images/dis%20t%20of%20reviews.png)
+
+Certain words appeared more frequently in the positve and negative sentiments, but they do not mean those words are of a positve or negative nature. Those words could be used in conjunction with other words that appear frequently. Example, the word need appears a lot in the negative sentiments, it does not mean need is a negative word, except that need was probably used in conjunction with other negative words a lot, same for option. The figure below shows the distribution of words that appeared frequently in the positive and negative reviews.
+
+![Frequency of reviews](https://github.com/JoAmps/bert-based-health-and-Fitness-sentiment-system/blob/main/images/pos_neg.png)
+
 
 ## Results
 ### Model Metrics
